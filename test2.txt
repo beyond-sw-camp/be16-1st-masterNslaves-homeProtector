@@ -2,5 +2,11 @@ hello java1
 hello java2
 hello java3
 hello java4
+<<<<<<< HEAD
 hello java5555ggit 
 hello zz
+=======
+hello java5
+hello java22
+hello java6666g
+>>>>>>> c1e2c854fce9432a47dd45353417cce7c3f4d8a5
