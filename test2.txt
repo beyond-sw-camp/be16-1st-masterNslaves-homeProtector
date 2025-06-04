@@ -2,4 +2,8 @@ hello java1
 hello java2
 hello java3
 hello java4
+<<<<<<< HEAD
 hello world11
+=======
+hello world22
+>>>>>>> main
