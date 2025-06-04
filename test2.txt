@@ -2,4 +2,11 @@ hello java1
 hello java2
 hello java3
 hello java4
+<<<<<<< HEAD
 aaa
+=======
+aa
+hello java10
+bangabangaddd
+ddddddd
+>>>>>>> 12e72e9c7b654657fb69c0ec3cca56dae2179c95
