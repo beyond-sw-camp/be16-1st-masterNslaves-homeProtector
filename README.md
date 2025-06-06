@@ -1,7 +1,9 @@
 # 🏚️ MASTERNSLAVES - 내 돈 지켜(가제)
 
 
-## 👥 팀원 소개
+
+<br>
+<h2>👥 팀원 소개</h2>
 <table>
   <tr>
     <td align="center">
@@ -60,7 +62,7 @@
 <h3>05_서비스 차별화 전략</h3>
 
 
-
+<br>
 
 ## ⚙️🛠️ Technical Stack
 
@@ -78,6 +80,8 @@
   <img src= "https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white"/>
 </div>
 
+<br>
+
 ## 🗓️ WBS
 
 <details>
@@ -85,6 +89,8 @@
 </details>
 
 [WBS]('')
+
+<br>
 
 ## 🧾 요구사항 명세서
 
@@ -102,7 +108,7 @@
 
 [ERD]('')
 
-
+<br>
 
 ## 🧾 DDL
 <details>
@@ -180,7 +186,7 @@ CREATE TABLE user (
 
 <hr>
 
-
+<br>
 
 ## 📜 동료평가
 
