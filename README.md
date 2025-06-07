@@ -56,7 +56,7 @@
 
 <div>
  <img src="images/need1.png" width="380"/>
- <img src="images/need2.png" width="430"/>
+ <img src="images/need2.png" width="420"/>
 </div>
 출처: 국토교통부(https://jeonse.kgeop.go.kr/) 
 
