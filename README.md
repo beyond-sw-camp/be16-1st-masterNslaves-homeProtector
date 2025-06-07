@@ -55,8 +55,8 @@
  2024년 1월 기준, 피해자 공식 인정 건수는 10,944건으로 더 많은 전세사기가 일어나고 있다고 추산됩니다. 또한 더욱 경기가 안좋게 흘러감으로써 집주인이 건물을 두고 도망가는 상황이 많이 펼쳐지며 HUG에서도 보증해주려 하지 않고있으며 현재 피해자중 20~30대의 비율이 72.9%로 7,984건 입니다. 이러한 점에서 더욱더 사기가 일어나면 안되며 SNS시대에서 정보공유가 필수적이라고 강조합니다.
 
 <div>
- <img src="images/need1.png" width="450"/>
- <img src="images/need2.png" width="490"/>
+ <img src="images/need1.png" width="380"/>
+ <img src="images/need2.png" width="430"/>
 </div>
 출처: 국토교통부(https://jeonse.kgeop.go.kr/) 
 
