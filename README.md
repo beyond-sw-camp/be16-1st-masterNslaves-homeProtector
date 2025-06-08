@@ -1,10 +1,14 @@
 # 🏚️ MASTERNSLAVES - HomeProtector
-
-
-
-
-
 <br>
+<p align="center">
+  <img src="images/team/Team Logo.png" width="400">
+</p>
+
+<details>
+  <summary>로고 제작 과정</summary>
+   <img src="images/team/Team logo process.png" width="800">
+</details>
+
 <h2>👥 팀원 소개</h2>
 <table>
   <tr>
@@ -105,9 +109,13 @@
 
 <details>
   <summary>WBS 보기</summary>
+   <img src="images/readme_sub/WBS.png" width="1000">
 </details>
-
-[WBS]('')
+<div style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
+  <a href='https://docs.google.com/spreadsheets/d/15pLhr2YpBQbEitgeisUuU08xiQDuqLblhvuWDRGMyNs/edit?gid=632033879#gid=632033879' style="text-decoration: none; color: inherit;">
+    WBS
+  </a>
+</div>
 
 <br>
 
@@ -115,17 +123,26 @@
 
 <details>
   <summary>요구사항 명세서 보기</summary>
+   <img src="images/readme_sub/요구사항 명세서.png" width="1000", height='500'>
 </details>
 
-[요구사항 명세서]('')
+<div style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
+  <a href='https://docs.google.com/spreadsheets/d/15pLhr2YpBQbEitgeisUuU08xiQDuqLblhvuWDRGMyNs/edit?gid=538827036#gid=538827036' style="text-decoration: none; color: inherit;">
+    요구사항 명세서
+  </a>
+</div>
 
 ## 🧱 ERD
 
 <details>
   <summary>ERD 보기</summary>
+   <img src="images/readme_sub/ERD.png" width="1000">
 </details>
-
-[ERD]('')
+<div style="font-size: 1.5em; font-weight: bold; margin-top: 20px;">
+  <a href='https://www.erdcloud.com/d/DvuCQXPY5ve8hbFBH' style="text-decoration: none; color: inherit;">
+    ERD
+  </a>
+</div>
 
 <br>
 
