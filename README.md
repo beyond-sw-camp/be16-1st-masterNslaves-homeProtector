@@ -457,7 +457,7 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
 <hr>
 
 
-## 🧾 DML
+## 🧾⏳⏰ DML 및 테스트케이스 진행.
 
 <details>
   <summary>DML</summary>
@@ -476,6 +476,26 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary> 4. 회원 조회</summary>
       </details>
   </details>
+
+  <details>
+  <summary>관리자 정보 관리</summary>
+  <details>
+    <summary>1. 관리자 가입</summary>
+       <img src="images/dml_images/관리자 정보 등록 및 검증.png" width="900">
+  </details>
+    <details>
+    <summary>2. 관리자 탈퇴</summary>
+      <img src="images/dml_images/관리자 탈퇴.png" width="900">
+  </details>
+    <details>
+    <summary>3. 관리자 정보 수정</summary>
+      <img src="images/dml_images/관리자 정보 수정 검증.png" width="900">
+  </details>
+    <details>
+    <summary>4. 관리자 정보 조회</summary>
+      <img src="images/dml_images/관리자 정보 조회.png" width="900">
+  </details>
+   </details>
   
   <details>
      <summary>전문가 관련</summary>
@@ -523,15 +543,19 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>질문 게시글 관련</summary>
       <details>
      <summary> 1. 질문 게시글 등록</summary>
+        <img src="images/dml_images/질문 게시글 등록.png" width="900">
       </details>
           <details>
      <summary> 2. 질문 게시글 수정</summary>
+            <img src="images/dml_images/질문 게시글 수정.png" width="900">
       </details>
           <details>
      <summary> 3. 질문 게시글 삭제</summary>
+            <img src="images/dml_images/질문 게시글 댓글 삭제.png" width="900">
       </details>
           <details>
      <summary> 4. 질문 게시글 조회</summary>
+            <img src="images/dml_images/질문 게시글 조회.png" width="900">
       </details>
   </details>
 
@@ -539,27 +563,35 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>댓글 관련</summary>
       <details>
      <summary> 1. 댓글 등록</summary>
+        <img src="images/dml_images/질문 게시글 작성.png" width="900">
       </details>
           <details>
      <summary> 2. 댓글 수정</summary>
+       <img src="images/dml_images/댓글 수정.png" width="900">
       </details>
           <details>
      <summary> 3. 댓글 삭제</summary>
+        <img src="images/dml_images/질문게시글 댓글 삭제.png" width="900">
       </details>
           <details>
      <summary> 4. 댓글 조회</summary>
+         <img src="images/dml_images/댓글 조회.png" width="900">
       </details>
     <details>
         <summary> 5. 대댓글 등록</summary>
+       <img src="images/dml_images/질문게시글 대댓글 추가.png" width="900">
       </details>
           <details>
      <summary> 6. 대댓글 수정</summary>
+        <img src="images/dml_images/대댓글 수정.png" width="900">
       </details>
           <details>
      <summary> 7. 대댓글 삭제</summary>
+        <img src="images/dml_images/질문게시글 댓글 및 대댓글 삭제.png" width="900">
       </details>
           <details>
      <summary> 8. 대댓글 조회</summary>
+        <img src="images/dml_images/대댓글 조회.png" width="900">
       </details>
 </details>
    <details>
@@ -601,47 +633,8 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary> 2. 좋아요 취소</summary>
       </details>
   </details>
-  
-  <hr>
-  
-  ## ⏳⏰ 테스트케이스 코드 및 실행
-  
-  <details>
-    <summary>회원 정보 관리</summary>
-    <details>
-      <summary>1. 회원 가입</summary>
-    </details>
-      <details>
-      <summary>2. 회원 탈퇴</summary>
-    </details>
-      <details>
-      <summary>3. 회원정보 수정</summary>
-    </details>
-      <details>
-      <summary>4. 회원정보 조회</summary>
-    </details>
-  </details>   
-</details>
-
-<hr>
-
-<details>
-  <summary>관리자 정보 관리</summary>
-  <details>
-    <summary>1. 관리자 가입</summary>
-  </details>
-    <details>
-    <summary>2. 관리자 탈퇴</summary>
-  </details>
-    <details>
-    <summary>3. 관리자 정보 수정</summary>
-  </details>
-    <details>
-    <summary>4. 관리자 정보 조회</summary>
-  </details>
 </details>  
-
-<hr>
+  <hr>
 
 <br>
 
