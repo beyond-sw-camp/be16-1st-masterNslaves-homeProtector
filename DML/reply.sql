@@ -52,7 +52,6 @@ DELIMITER //
 
 CREATE PROCEDURE add_comment_and_alert (
     IN p_user_id BIGINT,
-    IN p_post_id BIGINT,
     IN p_inquiry_id BIGINT,
     IN p_reply_content VARCHAR(255)
 )
@@ -60,8 +59,8 @@ BEGIN
     DECLARE post_owner_id BIGINT;
 
     -- 댓글 등록
-    INSERT INTO reply (user_id, post_id, inquiry_id, reply_content)
-    VALUES (p_user_id, p_post_id, p_inquiry_id, p_reply_content);
+    INSERT INTO reply (user_id, inquiry_id, reply_content)
+    VALUES (p_user_id, p_inquiry_id, p_reply_content);
 
     -- 게시글 작성자 확인
     SELECT user_id INTO post_owner_id
