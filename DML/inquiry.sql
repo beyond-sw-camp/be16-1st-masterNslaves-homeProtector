@@ -8,6 +8,38 @@ insert into inquiry(user_id, inquiry_title, inquiry_contents, inquiry_created_at
 -- 질문 게시글 수정 쿼리
 update inquiry set inquiry_title = '?', inquiry_updated_at = NOW() where user_id = 2 and inquiry_id = 2;
 
+-- 질문 게시글 삭제 프로시저
+DELIMITER //
+
+CREATE PROCEDURE delete_inquiry_and_related (
+    IN p_inquiry_id BIGINT
+)
+BEGIN
+    -- 좋아요 수 0으로 설정 및 게시글 삭제 처리
+    UPDATE inquiry
+    SET inquiry_like_count = 0,
+        inquiry_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 댓글 soft delete
+    UPDATE reply
+    SET reply_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 대댓글 삭제
+    UPDATE reply
+    SET reply_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id
+      AND reply_parent_id IS NOT NULL;
+    
+    -- 게시글 soft delete
+    UPDATE inquiry
+    SET inquiry_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+END //
+
+DELIMITER ;
 
 
 -- 질문 게시글 좋아요 프로시저
