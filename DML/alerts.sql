@@ -152,6 +152,62 @@ DELIMITER ;
 ---------------
 ---- 피해 게시물 댓글 및 알림 관련
 
+-- 피해게시글 댓글조회
+SELECT *
+FROM reply
+WHERE post_id = ? AND reply_parent_id IS NULL AND reply_deleted_at IS NULL
+ORDER BY reply_created_at;
+
+-- 피해게시글 댓글수정 
+UPDATE reply
+SET reply_content = ?, reply_modified_at = NOW()
+WHERE reply_id = ? AND reply_deleted_at IS NULL;
+
+-- 피해게시글 댓글삭제 + 대댓글 삭제
+DELIMITER //
+
+CREATE PROCEDURE delete_comment_and_replies (
+    IN p_reply_id BIGINT
+)
+BEGIN
+    DECLARE is_parent_comment BOOLEAN;
+
+    -- 부모 댓글 여부 확인
+    SELECT reply_parent_id IS NULL INTO is_parent_comment
+    FROM reply
+    WHERE reply_id = p_reply_id;
+
+    IF is_parent_comment THEN
+        -- 부모 댓글 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_id = p_reply_id;
+
+        -- 대댓글 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_parent_id = p_reply_id;
+    ELSE
+        -- 대댓글만 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_id = p_reply_id;
+    END IF;
+END//
+
+DELIMITER ;
+
+-- 피해게시글 대댓글 조회
+SELECT *
+FROM reply
+WHERE reply_parent_id = ? AND reply_deleted_at IS NULL
+ORDER BY reply_created_at;
+
+-- 피해게시글 대댓글 수정
+UPDATE reply
+SET reply_content = ?, reply_modified_at = NOW()
+WHERE reply_id = ? AND reply_deleted_at IS NULL
+
 -- 댓글 달기 + 알림생성
 DELIMITER //
 
@@ -208,7 +264,7 @@ BEGIN
 
     -- 대댓글 등록
     INSERT INTO reply (
-        user_id, post_id, reply_content, reply_parnet_id, reply_created_at
+        user_id, post_id, reply_content, reply_parent_id, reply_created_at
     ) VALUES (
         p_user_id, p_post_id, p_reply_content, p_reply_parent_id, NOW()
     );

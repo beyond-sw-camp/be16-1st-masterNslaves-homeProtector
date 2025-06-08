@@ -141,3 +141,25 @@ END;
 
 DELIMITER ;
 
+DELIMITER //
+
+-- 주소 검색시 피해게시글 조회회
+CREATE PROCEDURE search_posts_by_address(IN input_address VARCHAR(255))
+BEGIN
+SELECT
+p.post_id,
+p.post_title,
+p.post_content,
+p.post_created_at,
+pr.properties_id,
+pr.properties_address,
+pr.properties_name
+FROM
+post p
+INNER JOIN
+properties pr ON p.properties_id = pr.properties_id
+WHERE
+pr.properties_address LIKE CONCAT('%', input_address, '%');
+END //
+
+DELIMITER ;
