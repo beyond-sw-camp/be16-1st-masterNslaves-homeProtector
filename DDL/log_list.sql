@@ -1,1 +1,11 @@
 -- 로그 테이블
+CREATE TABLE log_list (	
+log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
+user_id BIGINT UNSIGNED NOT NULL,	
+action VARCHAR(255) NOT NULL,	
+entity_type VARCHAR(255) NOT NULL,	
+performed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,	
+details VARCHAR(255) NULL,	
+PRIMARY KEY (log_id),	
+FOREIGN KEY (user_id) REFERENCES user (user_id)	
+);
