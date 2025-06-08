@@ -502,15 +502,19 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>전문가 관련</summary>
       <details>
      <summary> 1. 전문가 등록</summary>
+        <img src="images/dml_images/전문가 가입 및 조회.png" width="900">
       </details>
           <details>
      <summary> 2. 전문가 수정</summary>
+            <img src="images/dml_images/전문가 수정 및 조회.png" width="900">
       </details>
           <details>
      <summary> 3. 전문가 탈퇴</summary>
+            <img src="images/dml_images/전문가 탈퇴 및 조회.png" width="900">
       </details>
           <details>
-     <summary> 4. 전문가 조회</summary>
+     <summary> 4. 전문가 활동내역 보기 조회</summary>
+            <img src="images/dml_images/전문가 활동 내역 보기(출력).png" width="900">
       </details>
   </details>
 
@@ -578,6 +582,26 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary> 4. 공지사항 조회</summary>
       </details>
   </details>
+     <details>
+     <summary>상담 게시글 관련</summary>
+      <details>
+     <summary> 1. 상담 게시글 등록</summary>
+        <img src="images/dml_images/상담게시글 등록 및 조회.png" width="900">
+      </details>
+          <details>
+     <summary> 2. 상담 게시글 수정</summary>
+            <img src="images/dml_images/상담게시글 수정 및 조회.png" width="900">
+      </details>
+          <details>
+     <summary> 3. 상담 게시글 삭제</summary>
+            <img src="images/dml_images/상담게시글 삭제 및 조회.png" width="900">
+      </details>
+          <details>
+     <summary> 4. 상담 게시글 조회(카테고리별, 상태별)</summary>
+            <img src="images/dml_images/상담게시글 카테고리별 개수 조회.png" width="450">
+            <img src="images/dml_images/상담게시글 Status별 개수 조회.png" width="450">
+      </details>
+  </details>
 
  <details>
      <summary>댓글 관련</summary>
@@ -640,7 +664,8 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
    <details>
      <summary>로그 관련</summary>
       <details>
-     <summary> 1.로그 조회</summary>
+     <summary> 1. 상담관련 로그 조회</summary>
+        <img src="images/dml_images/상담관련 로그만 조회.png" width="900">
       </details>
   </details>
   
