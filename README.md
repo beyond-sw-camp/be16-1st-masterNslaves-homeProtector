@@ -649,15 +649,25 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>신고 관련</summary>
       <details>
      <summary> 1. 피해 게시글 신고 요청</summary>
+         <img src="images/dml_images/1_게시글 신고 프로시저 실행.png" width="900">
+         <img src="images/dml_images/2_게시글_프로시저 실행 결과.png" width="900">
       </details>
           <details>
-     <summary> 2. 피해 게시글 댓글 신고 요청</summary>
+     <summary> 2. 피해 게시글 댓글 신고 요청 및 결과</summary>
+             <img src="images/dml_images/1_댓글 신고 프로시저 실행.png" width="900">
+            <img src="images/dml_images/2_프로시저 실행 결과.png" width="900">
       </details>
       <details>
      <summary> 3. 피해 게시글 신고 승인</summary>
+         <img src="images/dml_images/1_신고게시글 승인 완료.png" width="900">
+      </details>
+           <details>
+     <summary> 4. 피해 게시글 신고 반려</summary>
+         <img src="images/dml_images/3_신고게시글 반려 완료.png" width="900">
       </details>
           <details>
-     <summary> 4. 피해 게시글 댓글 신고 승인</summary>
+     <summary> 5. 피해 게시글 댓글 신고 승인</summary>
+            <img src="images/dml_images/1_신고게시글 승인 완료.png" width="900">
       </details>
   </details>
   
@@ -666,6 +676,14 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
       <details>
      <summary> 1. 상담관련 로그 조회</summary>
         <img src="images/dml_images/상담관련 로그만 조회.png" width="900">
+      </details>
+           <details>
+     <summary> 2. 신고게시글 승인 로그 조회</summary>
+        <img src="images/dml_images/2_승인 로그 업데이트 완료.png" width="900">
+      </details>
+           <details>
+     <summary> 3. 신고게시글 반려 로그 조회</summary>
+        <img src="images/dml_images/4_반려 로그 업데이트 완료.png" width="900">
       </details>
   </details>
   
