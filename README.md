@@ -49,12 +49,12 @@
 
 <h3>01_프로젝트 주제</h3>
 
- 전·월세 사기 피해자들이 실제 겪은 경험을 공유하고 상호작용하는 정보 공유 기반 커뮤니티 시스템
+&nbsp;전·월세 사기 피해자들이 실제 겪은 경험을 공유하고 상호작용하는 정보 공유 기반 커뮤니티 시스템
  
 
 <h3>02_프로젝트 소개</h3>
 
-최근 급증하는 전세사기 피해 사례는 단순한 금융 피해를 넘어 주거 안정성 자체를 위협하고 있습니다. 2024년 1월 기준, 전세사기피해지원위원회에서 피해자로 공식 인정된 사례는 총 10,944건이며, 이 중 70% 이상이 40세 미만 청년층에 집중되어 있습니다. 청년과 사회초년생이 주로 거주하는 소형 다세대, 오피스텔, 다가구주택 등이 주요 피해 대상이라는 점에서, 정보의 비대칭과 취약한 법적 방어력이 전세사기의 근본 원인으로 작용하고 있음을 시사 하고 있습니다. 이러한 전·월세 사기를 방지하고자 이미 피해를 본 사례를 등록하여 정보를 공유하고 서로 질문하는 시스템의 커뮤니티 서비스를 즐겨보세요!
+&nbsp;최근 급증하는 전세사기 피해 사례는 단순한 금융 피해를 넘어 주거 안정성 자체를 위협하고 있습니다. 2024년 1월 기준, 전세사기피해지원위원회에서 피해자로 공식 인정된 사례는 총 10,944건이며, 이 중 70% 이상이 40세 미만 청년층에 집중되어 있습니다. 청년과 사회초년생이 주로 거주하는 소형 다세대, 오피스텔, 다가구주택 등이 주요 피해 대상이라는 점에서, 정보의 비대칭과 취약한 법적 방어력이 전세사기의 근본 원인으로 작용하고 있음을 시사 하고 있습니다. 이러한 전·월세 사기를 방지하고자 이미 피해를 본 사례를 등록하여 정보를 공유하고 서로 질문하는 시스템의 커뮤니티 서비스를 즐겨보세요!
 
 <h3>03_프로젝트 필요성</h3>
 
@@ -69,7 +69,7 @@
 
 <br><br>
 2. 감소하는 인구 비율<br>
- 현재 인구가 매우 큰 폭으로 감소하고 있으며 현재 출산율이 0.75로 증가했음에도 아직 1이 넘지 않는것이 현실입니다. 또한 지금 지역별 출산율은 증가했을 수 있지만 전체 지역 합계 출산율로 계산해 보았을때 지속적으로 감소중입니다. 새로운 시대의 젊은 세대가 아이를 출산하기 위해서라도 사기가 일어나지않는 재발 방지 목적이 필요하다고 판단하였습니다.
+&nbsp;현재 인구가 매우 큰 폭으로 감소하고 있으며 현재 출산율이 0.75로 증가했음에도 아직 1이 넘지 않는것이 현실입니다. 또한 지금 지역별 출산율은 증가했을 수 있지만 전체 지역 합계 출산율로 계산해 보았을때 지속적으로 감소중입니다. 새로운 시대의 젊은 세대가 아이를 출산하기 위해서라도 사기가 일어나지않는 재발 방지 목적이 필요하다고 판단하였습니다.
 
  <img src="images/readme_sub/need3.png" width="550"/>
 출처: 대한민국 정책브리핑(https://www.korea.kr/news/policyNewsView.do?newsId=148940038)
@@ -1894,6 +1894,89 @@ DELIMITER ;
       </details>
   </details>
 </details>  
+<details>
+  <summary>Trigger</summary>
+  <details>
+    <summary>1. 상담 승인 트리거</summary>
+
+```sql
+-- post_status update시에 log_list에 로그가 남는 Trigger
+DELIMITER $$
+
+CREATE TRIGGER after_post_status_change
+AFTER UPDATE ON post
+FOR EACH ROW
+BEGIN
+    -- 승인 처리
+    IF OLD.post_status = '대기중' AND NEW.post_status = '승인' THEN
+        INSERT INTO log_list (
+            user_id,
+            action,
+            entity_type,
+            performed_at,
+            details
+        ) VALUES (
+            NEW.user_id,
+            '승인',
+            'post',
+            NOW(),
+            CONCAT('post_id=', NEW.post_id, '이 승인됨')
+        );
+    -- 반려 처리
+    ELSEIF OLD.post_status = '대기중' AND NEW.post_status = '반려' THEN
+        INSERT INTO log_list (
+            user_id,
+            action,
+            entity_type,
+            performed_at,
+            details
+        ) VALUES (
+            NEW.user_id,
+            '반려',
+            'post',
+            NOW(),
+            CONCAT('post_id=', NEW.post_id, '이 반려됨. ')
+        );
+    END IF;
+END$$
+
+DELIMITER ;
+```
+  </details>
+    <details>
+    <summary>2. 회원 승인 트리거</summary>
+
+```sql
+-- 상담 게시글 상태가 '대기중'에서 '승인'으로 바뀌었을 때만 로그 기록
+DELIMITER //
+
+CREATE TRIGGER trg_counsel_approve_log
+AFTER UPDATE ON counsel                   -- counsel 테이블의 UPDATE 이후 실행
+FOR EACH ROW                              -- 각 행마다 적용
+BEGIN
+   
+    IF OLD.status = '대기중' AND NEW.status = '승인' THEN           -- 상태가 '대기중'에서 '승인'으로 바뀌었을 때만 로그 기록
+        INSERT INTO log_list (
+            user_id,
+            action,
+            entity_type,
+            performed_at,
+            details
+        ) VALUES (
+            NEW.user_id,
+            '승인',
+            'counsel',
+            NOW(),
+            CONCAT('상담 ID: ', NEW.counsel_id, '이 승인되었습니다.')
+        );
+    END IF;
+END;
+//
+
+DELIMITER ; 
+```
+</details>
+</details>
   <hr>
 
 <br>
@@ -1901,7 +1984,7 @@ DELIMITER ;
 ## 🎉 회고
 
 - 김건동
-  -
+  - 
 - 김찬진
   -
 - 김진호
