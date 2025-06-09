@@ -67,7 +67,7 @@ post_accident_number VARCHAR(255) NOT NULL,
 post_accident_end_date DATETIME NOT NULL,		
 post_title VARCHAR(255) NOT NULL,		
 post_content TEXT NOT NULL,		
-post_status ENUM('대기중', '승인', '반려') NOT NULL DEFAULT '대기중',		
+post_status ENUM('대기중', '승인', '반려', '수정 요청') NOT NULL DEFAULT '대기중',		
 post_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,		
 post_updated_at DATETIME NULL,		
 post_deleted_at DATETIME NULL,		
@@ -78,6 +78,9 @@ PRIMARY KEY (post_id),
 FOREIGN KEY (user_id) REFERENCES user (user_id),		
 FOREIGN KEY (properties_id) REFERENCES properties (properties_id)		
 );		
+  -- post status column enum '수정 요청 추가 방법'
+      alter table post modify column post_status
+      ENUM ('대기중', '승인', '반려', '수정 요청') NOT NULL DEFAULT '대기중'
 
 -- 질문 게시글 테이블
 CREATE TABLE inquiry (		

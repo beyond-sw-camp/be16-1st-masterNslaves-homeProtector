@@ -1,3 +1,6 @@
+-- admin이 post를 승인, 반려 하는 프로시저
+ -- 승인, 반려 할 경우 log_list 트리거가 자동 실행되어 log_list에 업로드
+
 DELIMITER //
 
 CREATE PROCEDURE admin_update_post_status (
