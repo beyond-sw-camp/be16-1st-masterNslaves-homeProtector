@@ -466,7 +466,7 @@ FOREIGN KEY (user_id) REFERENCES user (user_id)
 <details>
   <summary>DML</summary>
   <details>
-     <summary>회원 관련</summary>
+     <summary>1. 회원 관련</summary>
       <details>
   <summary> 1. 회원 등록</summary>
   <img src="images/dml_images/회원등록.png" width="900">
@@ -642,7 +642,7 @@ DELIMITER ;
   </details>
 
   <details>
-  <summary>관리자 정보 관리</summary>
+  <summary>2. 관리자 정보 관리</summary>
   <details>
     <summary>1. 관리자 가입</summary>
        <img src="images/dml_images/관리자 정보 등록 및 검증.png" width="900">
@@ -662,7 +662,7 @@ DELIMITER ;
    </details>
   
   <details>
-     <summary>전문가 관련</summary>
+     <summary>3. 전문가 관련</summary>
       <details>
      <summary> 1. 전문가 등록</summary>
         <img src="images/dml_images/전문가 가입 및 조회.png" width="900">
@@ -722,7 +722,7 @@ DELIMITER ;
    </details>
 
  <details>
-     <summary>피해 게시글 관련</summary>
+     <summary>4. 피해 게시글 관련</summary>
       <details>
      <summary> 1. 피해 게시글 등록 요청</summary>
       <img src="images/dml_images/피해게시글등록_post.png" width="900">
@@ -1106,7 +1106,7 @@ DELIMITER ;
   
   
  <details>
-     <summary>질문 게시글 관련</summary>
+     <summary>5. 질문 게시글 관련</summary>
       <details>
      <summary> 1. 질문 게시글 등록</summary>
         <img src="images/dml_images/질문 게시글 등록.png" width="900">
@@ -1161,7 +1161,7 @@ DELIMITER ;
   </details>
 
    <details>
-     <summary>공지사항 관련</summary>
+     <summary>6. 공지사항 관련</summary>
       <details>
      <summary> 1. 공지사항 등록</summary>
       <img src="images/dml_images/공지사항 등록.png" width="900">
@@ -1275,7 +1275,7 @@ DELIMITER ;
       </details>
   </details>
      <details>
-     <summary>상담 게시글 관련</summary>
+     <summary>7. 상담 게시글 관련</summary>
       <details>
      <summary> 1. 상담 게시글 등록</summary>
         <img src="images/dml_images/상담게시글 등록 및 조회.png" width="900">
@@ -1296,7 +1296,7 @@ DELIMITER ;
   </details>
 
  <details>
-     <summary>댓글 관련</summary>
+     <summary>8. 댓글 관련</summary>
       <details>
      <summary> 1. 댓글 등록</summary>
         질문게시글 댓글 등록 / 피해게시글 댓글 등록
@@ -1481,7 +1481,7 @@ DELIMITER ;
       </details>
 </details>
    <details>
-     <summary>알림 관련</summary>
+     <summary>9. 알림 관련</summary>
       <details>
      <summary> 1. 질문게시글 댓글 알림 발송 및 조회</summary>
       <img src="images/dml_images/질문 게시글 댓글 등록 알림.png" width="900">
@@ -1665,7 +1665,7 @@ DELIMITER ;
   </details>
 
    <details>
-     <summary>신고 관련</summary>
+     <summary>10. 신고 관련</summary>
       <details>
      <summary> 1. 피해 게시글 신고 요청</summary>
          <img src="images/dml_images/1_게시글 신고 프로시저 실행.png" width="450">
@@ -1843,7 +1843,7 @@ DELIMITER ;
   </details>
   
    <details>
-     <summary>로그 관련</summary>
+     <summary>11. 로그 관련</summary>
       <details>
      <summary> 1. 상담관련 로그 조회</summary>
         <img src="images/dml_images/상담관련 로그만 조회.png" width="900">
@@ -1859,7 +1859,7 @@ DELIMITER ;
   </details>
   
    <details>
-     <summary>좋아요 관련</summary>
+     <summary>12. 좋아요 관련</summary>
       <details>
      <summary> 1. 좋아요 등록</summary>
       질문게시글 좋아요 등록 / 피해게시글 좋아요 등록
