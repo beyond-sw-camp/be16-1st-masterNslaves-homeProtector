@@ -634,8 +634,8 @@ DELIMITER ;
 </details>
           <details>
      <summary> 4. 회원 조회</summary>
-        <img src="images/dml_images/회원탈퇴.png" width="900">
-      </details>
+        <img src="images/dml_images/활성화된 회원목록조회.png" width="900">
+</details>
   </details>
 
   <details>
@@ -723,22 +723,243 @@ DELIMITER ;
       <details>
      <summary> 1. 피해 게시글 등록 요청</summary>
       <img src="images/dml_images/피해게시글등록_post.png" width="900">
-      </details>
+
+```sql
+-- 피해게시글등록 + 부동산정도 + 사기유형형
+DELIMITER //
+
+CREATE PROCEDURE insert_post_with_property_and_fraud_types (
+    IN p_user_id BIGINT,
+    IN p_address VARCHAR(255),
+    IN p_name VARCHAR(255),
+    IN p_latitude DECIMAL(9,6),
+    IN p_longitude DECIMAL(9,6),
+    IN p_accident_number VARCHAR(255),
+    IN p_accident_end_date DATETIME,
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_fraud_ids JSON
+)
+BEGIN
+    DECLARE v_properties_id BIGINT;
+    DECLARE v_post_id BIGINT;
+    DECLARE v_index INT DEFAULT 0;
+    DECLARE v_fraud_id BIGINT;
+    DECLARE v_total INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 및 사기유형 등록 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 1. 부동산 정보 삽입
+    INSERT IGNORE INTO properties (
+        properties_address, properties_name, properties_latitude, properties_longitude
+    ) VALUES (
+        p_address, p_name, p_latitude, p_longitude
+    );
+
+    -- 2. 해당 부동산 ID 조회
+    SELECT properties_id INTO v_properties_id
+    FROM properties
+    WHERE properties_address = p_address
+      AND properties_name = p_name
+      AND properties_latitude = p_latitude
+      AND properties_longitude = p_longitude;
+
+    -- 3. 게시글 삽입
+    INSERT INTO post (
+        user_id, properties_id, post_accident_number, post_accident_end_date,
+        post_title, post_content, post_created_at
+    ) VALUES (
+        p_user_id, v_properties_id, p_accident_number, p_accident_end_date,
+        p_title, p_content, NOW()
+    );
+
+    -- 4. post_id 가져오기
+    SET v_post_id = LAST_INSERT_ID();
+
+    -- 5. JSON 배열에서 fraud_id 하나씩 꺼내서 연결
+    SET v_total = JSON_LENGTH(p_fraud_ids);
+    WHILE v_index < v_total DO
+        SET v_fraud_id = CAST(JSON_UNQUOTE(JSON_EXTRACT(p_fraud_ids, CONCAT('$[', v_index, ']'))) AS UNSIGNED);
+        INSERT INTO fraud_type_connect (post_id, fraud_id)
+        VALUES (v_post_id, v_fraud_id);
+        SET v_index = v_index + 1;
+    END WHILE;
+
+    COMMIT;
+END //
+
+DELIMITER ;
+```
+ </details>
           <details>
      <summary> 2. 피해 게시글 수정 요청</summary>
         <img src="images/dml_images/피해게시글수정.png" width="900">
-      </details>
+
+```sql
+-- 피해게시글 수정
+DELIMITER //
+
+CREATE PROCEDURE update_post (
+    IN p_post_id BIGINT,
+    IN p_user_id BIGINT,
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_accident_number VARCHAR(255),
+    IN p_accident_end_date DATETIME
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = '피해 게시글 수정 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 게시글 수정
+    UPDATE post
+    SET
+        post_title = p_title,
+        post_content = p_content,
+        post_accident_number = p_accident_number,
+        post_accident_end_date = p_accident_end_date,
+        post_updated_at = NOW()
+    WHERE post_id = p_post_id AND user_id = p_user_id;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+</details>
           <details>
      <summary> 3. 피해 게시글 삭제 요청</summary>
         <img src="images/dml_images/피해게시글삭제.png" width="900">
-      </details>
+
+```sql
+-- 피해게시글 삭제
+DELIMITER //
+
+CREATE PROCEDURE delete_post_soft (
+    IN p_post_id BIGINT,
+    IN p_user_id BIGINT
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = '피해 게시글 삭제 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 게시글 소유자 확인 및 삭제 처리 (soft delete)
+    UPDATE post
+    SET post_deleted_at = NOW()
+    WHERE post_id = p_post_id AND user_id = p_user_id;
+
+    -- 삭제 반영 여부 확인
+    IF ROW_COUNT() = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글이 존재하지 않거나 삭제 권한이 없습니다.';
+    END IF;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+</details>
           <details>
      <summary> 4. 피해 게시글 조회</summary>
           <img src="images/dml_images/주소검색.png" width="900">
-      </details>
+
+```sql
+-- 승인된 게시글 주소조회
+DELIMITER //
+
+CREATE PROCEDURE search_posts_by_address(IN input_address VARCHAR(255))
+BEGIN
+    SELECT
+        p.post_id,
+        p.post_title,
+        p.post_content,
+        p.post_created_at,
+        pr.properties_id,
+        pr.properties_address,
+        pr.properties_name
+    FROM post p
+    INNER JOIN properties pr ON p.properties_id = pr.properties_id
+    WHERE pr.properties_address LIKE CONCAT('%', input_address, '%')
+      AND p.post_status = '승인'; 
+END //
+
+DELIMITER ;
+```
+</details>
       <details>
      <summary> 5. 피해 게시글 등록 승인</summary>
-      </details>
+        <img src="images/dml_images/1_신고게시글 승인 완료.png" width="900">
+        
+```sql
+DELIMITER //
+
+CREATE PROCEDURE admin_update_post_status (
+    IN p_post_id BIGINT,
+    IN p_admin_id BIGINT,
+    IN p_post_status ENUM('승인', '반려'),
+    IN p_rejected_reason VARCHAR(255)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 상태 변경 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 상태가 승인일 경우 반려 사유는 NULL로 처리
+    IF p_post_status = '승인' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = NULL,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSEIF p_post_status = '반려' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = p_rejected_reason,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'post_status는 승인 또는 반려만 허용됩니다';
+    END IF;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+  </details>
           <details>
      <summary> 6. 피해 게시글 수정 승인</summary>
       </details>
@@ -748,7 +969,81 @@ DELIMITER ;
              <details>
      <summary> 8. 부동산 정보등록</summary>
             <img src="images/dml_images/부동산정보등록.png" width="900">
-      </details>
+
+```sql
+-- 피해게시글등록 + 부동산정도 + 사기유형형
+DELIMITER //
+
+CREATE PROCEDURE insert_post_with_property_and_fraud_types (
+    IN p_user_id BIGINT,
+    IN p_address VARCHAR(255),
+    IN p_name VARCHAR(255),
+    IN p_latitude DECIMAL(9,6),
+    IN p_longitude DECIMAL(9,6),
+    IN p_accident_number VARCHAR(255),
+    IN p_accident_end_date DATETIME,
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_fraud_ids JSON
+)
+BEGIN
+    DECLARE v_properties_id BIGINT;
+    DECLARE v_post_id BIGINT;
+    DECLARE v_index INT DEFAULT 0;
+    DECLARE v_fraud_id BIGINT;
+    DECLARE v_total INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 및 사기유형 등록 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 1. 부동산 정보 삽입
+    INSERT IGNORE INTO properties (
+        properties_address, properties_name, properties_latitude, properties_longitude
+    ) VALUES (
+        p_address, p_name, p_latitude, p_longitude
+    );
+
+    -- 2. 해당 부동산 ID 조회
+    SELECT properties_id INTO v_properties_id
+    FROM properties
+    WHERE properties_address = p_address
+      AND properties_name = p_name
+      AND properties_latitude = p_latitude
+      AND properties_longitude = p_longitude;
+
+    -- 3. 게시글 삽입
+    INSERT INTO post (
+        user_id, properties_id, post_accident_number, post_accident_end_date,
+        post_title, post_content, post_created_at
+    ) VALUES (
+        p_user_id, v_properties_id, p_accident_number, p_accident_end_date,
+        p_title, p_content, NOW()
+    );
+
+    -- 4. post_id 가져오기
+    SET v_post_id = LAST_INSERT_ID();
+
+    -- 5. JSON 배열에서 fraud_id 하나씩 꺼내서 연결
+    SET v_total = JSON_LENGTH(p_fraud_ids);
+    WHILE v_index < v_total DO
+        SET v_fraud_id = CAST(JSON_UNQUOTE(JSON_EXTRACT(p_fraud_ids, CONCAT('$[', v_index, ']'))) AS UNSIGNED);
+        INSERT INTO fraud_type_connect (post_id, fraud_id)
+        VALUES (v_post_id, v_fraud_id);
+        SET v_index = v_index + 1;
+    END WHILE;
+
+    COMMIT;
+END //
+
+DELIMITER ;
+```
+</details>
              <details>
      <summary> 9. 사기 유형 연결</summary>
             <img src="images/dml_images/사기유형연결.png" width="900">
@@ -769,7 +1064,42 @@ DELIMITER ;
           <details>
      <summary> 3. 질문 게시글 삭제</summary>
             <img src="images/dml_images/질문 게시글 댓글 삭제.png" width="900">
-      </details>
+            
+```sql
+-- 질문 게시글 삭제 프로시저
+DELIMITER //
+
+CREATE PROCEDURE delete_inquiry_and_related (
+    IN p_inquiry_id BIGINT
+)
+BEGIN
+    -- 좋아요 수 0으로 설정 및 게시글 삭제 처리
+    UPDATE inquiry
+    SET inquiry_like_count = 0,
+        inquiry_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 댓글 soft delete
+    UPDATE reply
+    SET reply_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 대댓글 삭제
+    UPDATE reply
+    SET reply_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id
+      AND reply_parent_id IS NOT NULL;
+    
+    -- 게시글 soft delete
+    UPDATE inquiry
+    SET inquiry_deleted_at = NOW()
+    WHERE inquiry_id = p_inquiry_id;
+
+END //
+
+DELIMITER ;
+```
+  </details>
           <details>
      <summary> 4. 질문 게시글 조회</summary>
             <img src="images/dml_images/질문 게시글 조회.png" width="900">
@@ -1284,22 +1614,174 @@ DELIMITER ;
      <summary>신고 관련</summary>
       <details>
      <summary> 1. 피해 게시글 신고 요청</summary>
-         <img src="images/dml_images/1_게시글 신고 프로시저 실행.png" width="900">
-         <img src="images/dml_images/2_게시글_프로시저 실행 결과.png" width="900">
-      </details>
+         <img src="images/dml_images/1_게시글 신고 프로시저 실행.png" width="450">
+         <img src="images/dml_images/2_게시글_프로시저 실행 결과.png" width="450">
+
+```sql
+-- 게시글 신고 프로시저
+DELIMITER $$
+
+CREATE PROCEDURE report_post (
+    IN p_user_id BIGINT UNSIGNED,
+    IN p_post_id BIGINT UNSIGNED,
+    IN p_reason TEXT
+)
+BEGIN
+    INSERT INTO report (
+        user_id,
+        post_id,
+        report_resason,
+        report_status,
+        report_date
+    ) VALUES (
+        p_user_id,
+        p_post_id,
+        p_reason,
+        '대기중',
+        NOW()
+    );
+END$$
+
+DELIMITER ;
+```
+</details>
           <details>
      <summary> 2. 피해 게시글 댓글 신고 요청 및 결과</summary>
-             <img src="images/dml_images/1_댓글 신고 프로시저 실행.png" width="900">
-            <img src="images/dml_images/2_프로시저 실행 결과.png" width="900">
-      </details>
+             <img src="images/dml_images/1_댓글 신고 프로시저 실행.png" width="450">
+            <img src="images/dml_images/2_프로시저 실행 결과.png" width="450">
+            
+```sql
+-- 댓글 신고 프로시저
+DELIMITER $$
+
+CREATE PROCEDURE report_reply (
+    IN p_user_id BIGINT UNSIGNED,
+    IN p_reply_id BIGINT UNSIGNED,
+    IN p_reason TEXT
+)
+BEGIN
+    INSERT INTO report (
+        user_id,
+        reply_id,
+        report_resason,
+        report_status,
+        report_date
+    ) VALUES (
+        p_user_id,
+        p_reply_id,
+        p_reason,
+        '대기중',
+        NOW()
+    );
+END$$
+
+DELIMITER ;
+```
+</details>
       <details>
      <summary> 3. 피해 게시글 신고 승인</summary>
-         <img src="images/dml_images/1_신고게시글 승인 완료.png" width="900">
-      </details>
+         <img src="images/dml_images/2_관리자 게시글 승인 프로시저.png" width="900">
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE admin_update_post_status (
+    IN p_post_id BIGINT,
+    IN p_admin_id BIGINT,
+    IN p_post_status ENUM('승인', '반려'),
+    IN p_rejected_reason VARCHAR(255)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 상태 변경 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 상태가 승인일 경우 반려 사유는 NULL로 처리
+    IF p_post_status = '승인' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = NULL,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSEIF p_post_status = '반려' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = p_rejected_reason,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'post_status는 승인 또는 반려만 허용됩니다';
+    END IF;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+  </details>
            <details>
      <summary> 4. 피해 게시글 신고 반려</summary>
-         <img src="images/dml_images/3_신고게시글 반려 완료.png" width="900">
-      </details>
+         <img src="images/dml_images/2_관리자 게시글 반려 프로시저.png" width="900">
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE admin_update_post_status (
+    IN p_post_id BIGINT,
+    IN p_admin_id BIGINT,
+    IN p_post_status ENUM('승인', '반려'),
+    IN p_rejected_reason VARCHAR(255)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 상태 변경 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 상태가 승인일 경우 반려 사유는 NULL로 처리
+    IF p_post_status = '승인' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = NULL,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSEIF p_post_status = '반려' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = p_rejected_reason,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'post_status는 승인 또는 반려만 허용됩니다';
+    END IF;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+</details>
           <details>
      <summary> 5. 피해 게시글 댓글 신고 승인</summary>
             <img src="images/dml_images/1_신고게시글 승인 완료.png" width="900">
@@ -1330,7 +1812,41 @@ DELIMITER ;
       <div>
       <img src="images/dml_images/질문 게시글 좋아요 추가.png" width="450">
         <img src="images/dml_images/피해게시글 좋아요 등록.png" width="450">
-      </div>
+
+```sql
+-- 질문 게시글 좋아요 프로시저
+DELIMITER //
+
+CREATE PROCEDURE insert_inquiry_like (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id
+     BIGINT
+)
+BEGIN
+    DECLARE v_count INT;
+
+    -- 1. 중복 좋아요 여부 확인
+    SELECT COUNT(*) INTO v_count
+    FROM inquiry_like
+    WHERE user_id = p_user_id AND inquiry_id = p_inquiry_id
+    ;
+
+    -- 2. 좋아요 삽입 및 게시글 좋아요 수 증가
+    IF v_count = 0 THEN
+        INSERT INTO inquiry_like (user_id, inquiry_id, liked_created_at)
+        VALUES (p_user_id, p_inquiry_id
+        , NOW());
+
+        UPDATE inquiry
+        SET inquiry_like_count = COALESCE(inquiry_like_count, 0) + 1
+        WHERE inquiry_id = p_inquiry_id
+        ;
+    END IF;
+END //
+
+DELIMITER ;
+```
+ </div>
       </details>
           <details>
      <summary> 2. 좋아요 취소</summary>
@@ -1338,7 +1854,43 @@ DELIMITER ;
       <div>
       <img src="images/dml_images/질문 게시글 좋아요 취소.png" width="450">
       <img src="images/dml_images/피해게시글 좋아요 취소.png" width="450">
-      </div>
+        
+```sql
+-- 질문 게시글 좋아요 취소 프로시저
+DELIMITER //
+
+CREATE PROCEDURE delete_inquiry_like (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id
+     BIGINT
+)
+BEGIN
+    DECLARE v_count INT;
+
+    -- 1. 좋아요 여부 확인
+    SELECT COUNT(*) INTO v_count
+    FROM inquiry_like
+    WHERE user_id = p_user_id AND inquiry_id = p_inquiry_id
+    ;
+
+    -- 2. 좋아요가 존재할 경우 삭제 및 카운트 감소
+    IF v_count > 0 THEN
+        -- 좋아요 삭제
+        DELETE FROM inquiry_like
+        WHERE user_id = p_user_id AND inquiry_id = p_inquiry_id
+        ;
+
+        -- 카운트 감소 (최소값 0 보장)
+        UPDATE inquiry
+        SET inquiry_like_count = GREATEST(COALESCE(inquiry_like_count, 1) - 1, 0)
+        WHERE inquiry_id = p_inquiry_id
+        ;
+    END IF;
+END //
+
+DELIMITER ;
+```
+</div>
       </details>
   </details>
 </details>  
