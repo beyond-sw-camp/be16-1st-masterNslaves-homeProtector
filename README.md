@@ -781,15 +781,110 @@ DELIMITER ;
       <details>
      <summary> 1. 공지사항 등록</summary>
       <img src="images/dml_images/공지사항 등록.png" width="900">
+
+   ```sql
+-- 공지사항 게시글 등록 프로시저 
+DELIMITER //
+
+CREATE PROCEDURE add_notice (
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_admin_id BIGINT
+)
+BEGIN
+    DECLARE admin_exists INT;
+
+    -- 유효한 관리자(삭제되지 않음)인지 확인
+    SELECT COUNT(*) INTO admin_exists
+    FROM admin
+    WHERE admin_id = p_admin_id AND admin_end_at IS NULL;
+
+    IF admin_exists = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '삭제된 관리자이거나 존재하지 않는 관리자입니다.';
+    ELSE
+        INSERT INTO notice (announce_title, announce_content, admin_id)
+        VALUES (p_title, p_content, p_admin_id);
+    END IF;
+END //
+
+DELIMITER ;
+  ```
   </details>
   <details>
      <summary> 2. 공지사항 수정</summary>
       <img src="images/dml_images/공지사항 수정.png" width="900">
+    
+```sql
+-- 공지사항 수정 프로시저
+DELIMITER //
+
+CREATE PROCEDURE update_notice (
+    IN p_notice_id BIGINT,
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_admin_id BIGINT
+)
+BEGIN
+    DECLARE admin_exists INT;
+
+    -- 관리자 유효성 검사
+    SELECT COUNT(*) INTO admin_exists
+    FROM admin
+    WHERE admin_id = p_admin_id AND admin_end_at IS NULL;
+
+    IF admin_exists = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '삭제된 관리자이거나 존재하지 않는 관리자입니다.';
+    ELSE
+        UPDATE notice
+        SET announce_title = p_title,
+            announce_content = p_content,
+            announce_updated_at = NOW()
+        WHERE announce_id = p_notice_id;
+    END IF;
+END //
+
+DELIMITER ;
+  ```
   </details>
           <details>
      <summary> 3. 공지사항 삭제</summary>
             <img src="images/dml_images/공지사항 삭제.png" width="900">
-      </details>
+            
+```sql
+-- 공지사항 수정 프로시저
+DELIMITER //
+
+CREATE PROCEDURE update_notice (
+    IN p_notice_id BIGINT,
+    IN p_title VARCHAR(255),
+    IN p_content TEXT,
+    IN p_admin_id BIGINT
+)
+BEGIN
+    DECLARE admin_exists INT;
+
+    -- 관리자 유효성 검사
+    SELECT COUNT(*) INTO admin_exists
+    FROM admin
+    WHERE admin_id = p_admin_id AND admin_end_at IS NULL;
+
+    IF admin_exists = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '삭제된 관리자이거나 존재하지 않는 관리자입니다.';
+    ELSE
+        UPDATE notice
+        SET announce_title = p_title,
+            announce_content = p_content,
+            announce_updated_at = NOW()
+        WHERE announce_id = p_notice_id;
+    END IF;
+END //
+
+DELIMITER ;
+```
+  </details>
           <details>
      <summary> 4. 공지사항 조회</summary>
       </details>
@@ -823,7 +918,38 @@ DELIMITER ;
         <div>
         <img src="images/dml_images/질문 게시글 댓글 작성.png" width="450">
         <img src="images/dml_images/피해게시글 댓글달기.png" width="450">
-        </div>
+          
+```sql
+-- 댓글 생성 프로시저
+DELIMITER //
+
+CREATE PROCEDURE add_comment_and_alert (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE post_owner_id BIGINT;
+
+    -- 댓글 등록
+    INSERT INTO reply (user_id, inquiry_id, reply_content)
+    VALUES (p_user_id, p_inquiry_id, p_reply_content);
+
+    -- 게시글 작성자 확인
+    SELECT user_id INTO post_owner_id
+    FROM inquiry
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 알림: 게시글 작성자에게만 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id THEN
+        INSERT INTO alerts (user_id, inquiry_id, notice_message)
+        VALUES (post_owner_id, p_inquiry_id, '새 댓글이 달렸습니다.');
+    END IF;
+END //
+
+DELIMITER ;
+  ```
+  </div>
       </details>
           <details>
      <summary> 2. 댓글 수정</summary>
