@@ -526,12 +526,15 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>피해 게시글 관련</summary>
       <details>
      <summary> 1. 피해 게시글 등록 요청</summary>
+      <img src="images/dml_images/피해게시글등록_post.png" width="900">
       </details>
           <details>
      <summary> 2. 피해 게시글 수정 요청</summary>
+        <img src="images/dml_images/피해게시글수정.png" width="900">
       </details>
           <details>
      <summary> 3. 피해 게시글 삭제 요청</summary>
+        <img src="images/dml_images/피해게시글삭제.png" width="900">
       </details>
           <details>
      <summary> 4. 피해 게시글 조회</summary>
