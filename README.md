@@ -887,6 +887,7 @@ DELIMITER ;
   </details>
           <details>
      <summary> 4. 공지사항 조회</summary>
+            <img src="images/dml_images/공지사항 조회.png" width="900">
       </details>
   </details>
      <details>
@@ -965,7 +966,43 @@ DELIMITER ;
         <div>
         <img src="images/dml_images/질문 게시글 댓글 삭제.png" width="450">
         <img src="images/dml_images/피해게시글 댓글삭제.png" width="450">
-        </div>
+          
+```sql
+-- 피해게시글 댓글삭제 + 대댓글 삭제
+DELIMITER //
+
+CREATE PROCEDURE delete_comment_and_replies (
+    IN p_reply_id BIGINT
+)
+BEGIN
+    DECLARE is_parent_comment BOOLEAN;
+
+    -- 부모 댓글 여부 확인
+    SELECT reply_parent_id IS NULL INTO is_parent_comment
+    FROM reply
+    WHERE reply_id = p_reply_id;
+
+    IF is_parent_comment THEN
+        -- 부모 댓글 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_id = p_reply_id;
+
+        -- 대댓글 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_parent_id = p_reply_id;
+    ELSE
+        -- 대댓글만 삭제
+        UPDATE reply
+        SET reply_deleted_at = NOW()
+        WHERE reply_id = p_reply_id;
+    END IF;
+END//
+
+DELIMITER ;
+```
+</div>
       </details>
           <details>
      <summary> 4. 댓글 조회</summary>
@@ -981,7 +1018,58 @@ DELIMITER ;
       <div>
        <img src="images/dml_images/질문 게시글 대댓글 추가.png" width="450">
       <img src="images/dml_images/피해게시글 대댓글달기.png" width="450">
-      </div>
+        
+```sql
+-- 대댓글 생성 프로시저
+DELIMITER //
+
+CREATE PROCEDURE add_reply_to_reply_and_alert (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id BIGINT,
+    IN p_reply_parent_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE parent_writer_id BIGINT;
+    DECLARE post_owner_id BIGINT;
+    DECLARE parent_inquiry_id BIGINT;
+
+    -- 부모 댓글의 게시글 ID 확인
+    SELECT inquiry_id, user_id INTO parent_inquiry_id, parent_writer_id
+    FROM reply
+    WHERE reply_id = p_reply_parent_id;
+
+    -- 부모 댓글의 게시글 ID가 다르면 예외 처리
+    IF parent_inquiry_id != p_inquiry_id THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '대댓글의 부모 댓글이 해당 게시글에 존재하지 않습니다.';
+    END IF;
+
+    -- 대댓글 등록
+    INSERT INTO reply (user_id, inquiry_id, reply_content, reply_parent_id, reply_created_at)
+    VALUES (p_user_id, p_inquiry_id, p_reply_content, p_reply_parent_id, NOW());
+
+    -- 게시글 작성자
+    SELECT user_id INTO post_owner_id
+    FROM inquiry
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 알림: 부모 댓글 작성자에게 (자기 자신이 아닌 경우)
+    IF parent_writer_id != p_user_id THEN
+        INSERT INTO alerts (user_id, reply_id, notice_message)
+        VALUES (parent_writer_id, p_reply_parent_id, '내 댓글에 대댓글이 달렸습니다.');
+    END IF;
+
+    -- 알림: 게시글 작성자에게도 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id AND post_owner_id != parent_writer_id THEN
+        INSERT INTO alerts (user_id, inquiry_id, notice_message)
+        VALUES (post_owner_id, p_inquiry_id, '게시글에 새로운 댓글이 달렸습니다.');
+    END IF;
+END //
+
+DELIMITER ;
+```
+</div>
       </details>
           <details>
      <summary> 6. 대댓글 수정</summary>
@@ -997,7 +1085,7 @@ DELIMITER ;
         질문게시글 대댓글 삭제 / 피해게시글 대댓글 삭제
         <img src="images/dml_images/질문 게시글 댓글 및 대댓글 삭제.png" width="450">
         <img src="images/dml_images/피해게시글 대댓글삭제.png" width="450">
-        </div>
+</div>
       </details>
           <details>
      <summary> 8. 대댓글 조회</summary>
@@ -1013,19 +1101,183 @@ DELIMITER ;
       <details>
      <summary> 1. 질문게시글 댓글 알림 발송 및 조회</summary>
       <img src="images/dml_images/질문 게시글 댓글 등록 알림.png" width="900">
-      </details>
+
+```sql
+DELIMITER //
+CREATE PROCEDURE add_comment_and_alert (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE post_owner_id BIGINT;
+
+    -- 댓글 등록
+    INSERT INTO reply (user_id, inquiry_id, reply_content)
+    VALUES (p_user_id, p_inquiry_id, p_reply_content);
+
+    -- 게시글 작성자 확인
+    SELECT user_id INTO post_owner_id
+    FROM inquiry
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 알림: 게시글 작성자에게만 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id THEN
+        INSERT INTO alerts (user_id, inquiry_id, notice_message)
+        VALUES (post_owner_id, p_inquiry_id, '새 댓글이 달렸습니다.');
+    END IF;
+END //
+
+DELIMITER ;
+```
+  </details>
       <details>
      <summary> 2. 피해게시글 댓글 알림 발송 및 조회</summary>
       <img src="images/dml_images/피해게시글 댓글알림.png" width="900">
-      </details>
+        
+```sql
+DELIMITER //
+
+CREATE PROCEDURE add_post_comment_and_alert (
+    IN p_user_id BIGINT,
+    IN p_post_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE post_owner_id BIGINT;
+
+    -- 댓글 등록
+    INSERT INTO reply (user_id, post_id, reply_content)
+    VALUES (p_user_id, p_post_id, p_reply_content);
+
+    -- 게시글 작성자 확인
+    SELECT user_id INTO post_owner_id
+    FROM post
+    WHERE post_id = p_post_id;
+
+    -- 알림: 게시글 작성자에게만 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id THEN
+        INSERT INTO alerts (user_id, post_id, notice_message)
+        VALUES (post_owner_id, p_post_id, '새 댓글이 달렸습니다.');
+    END IF;
+END;
+//
+
+DELIMITER ;
+```
+ </details>
       <details>
      <summary> 3. 질문게시글 대댓글 알림 발송 및 조회</summary>
       <img src="images/dml_images/질문 게시글 대댓글 등록 알림 발송.png" width="900">
-      </details>
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE add_reply_to_reply_and_alert (
+    IN p_user_id BIGINT,
+    IN p_inquiry_id BIGINT,
+    IN p_reply_parent_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE parent_writer_id BIGINT;
+    DECLARE post_owner_id BIGINT;
+    DECLARE parent_inquiry_id BIGINT;
+
+    -- 부모 댓글의 게시글 ID 확인
+    SELECT inquiry_id, user_id INTO parent_inquiry_id, parent_writer_id
+    FROM reply
+    WHERE reply_id = p_reply_parent_id;
+
+    -- 부모 댓글의 게시글 ID가 다르면 예외 처리
+    IF parent_inquiry_id != p_inquiry_id THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '대댓글의 부모 댓글이 해당 게시글에 존재하지 않습니다.';
+    END IF;
+
+    -- 대댓글 등록
+    INSERT INTO reply (user_id, inquiry_id, reply_content, reply_parent_id, reply_created_at)
+    VALUES (p_user_id, p_inquiry_id, p_reply_content, p_reply_parent_id, NOW());
+
+    -- 게시글 작성자
+    SELECT user_id INTO post_owner_id
+    FROM inquiry
+    WHERE inquiry_id = p_inquiry_id;
+
+    -- 알림: 부모 댓글 작성자에게 (자기 자신이 아닌 경우)
+    IF parent_writer_id != p_user_id THEN
+        INSERT INTO alerts (user_id, reply_id, notice_message)
+        VALUES (parent_writer_id, p_reply_parent_id, '내 댓글에 대댓글이 달렸습니다.');
+    END IF;
+
+    -- 알림: 게시글 작성자에게도 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id AND post_owner_id != parent_writer_id THEN
+        INSERT INTO alerts (user_id, inquiry_id, notice_message)
+        VALUES (post_owner_id, p_inquiry_id, '게시글에 새로운 댓글이 달렸습니다.');
+    END IF;
+END //
+
+DELIMITER ;
+```
+</details>
       <details>
      <summary> 4. 피해게시글 대댓글 알림 발송 및 조회</summary>
       <img src="images/dml_images/피해게시글 대댓글알림.png" width="900">
-      </details>
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE add_reply_to_reply_on_post_and_alert (
+    IN p_user_id BIGINT,
+    IN p_post_id BIGINT,
+    IN p_reply_parent_id BIGINT,
+    IN p_reply_content VARCHAR(255)
+)
+BEGIN
+    DECLARE parent_writer_id BIGINT;
+    DECLARE parent_post_id BIGINT;
+    DECLARE post_owner_id BIGINT;
+
+    -- 부모 댓글의 게시글 ID 확인
+    SELECT post_id, user_id INTO parent_post_id, parent_writer_id
+    FROM reply
+    WHERE reply_id = p_reply_parent_id;
+
+    -- 부모 댓글이 해당 게시글에 달린 게 맞는지 확인
+    IF parent_post_id != p_post_id THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '대댓글의 부모 댓글이 해당 게시글에 존재하지 않습니다.';
+    END IF;
+
+    -- 대댓글 등록
+    INSERT INTO reply (
+        user_id, post_id, reply_content, reply_parent_id, reply_created_at
+    ) VALUES (
+        p_user_id, p_post_id, p_reply_content, p_reply_parent_id, NOW()
+    );
+
+    -- 게시글 작성자 확인
+    SELECT user_id INTO post_owner_id
+    FROM post
+    WHERE post_id = p_post_id;
+
+    -- 알림: 부모 댓글 작성자에게 (자기 자신이 아닌 경우)
+    IF parent_writer_id != p_user_id THEN
+        INSERT INTO alerts (user_id, reply_id, notice_message)
+        VALUES (parent_writer_id, p_reply_parent_id, '내 댓글에 대댓글이 달렸습니다.');
+    END IF;
+
+    -- 알림: 게시글 작성자에게도 (자기 자신이 아닌 경우)
+    IF post_owner_id != p_user_id AND post_owner_id != parent_writer_id THEN
+        INSERT INTO alerts (user_id, post_id, notice_message)
+        VALUES (post_owner_id, p_post_id, '게시글에 새로운 댓글이 달렸습니다.');
+    END IF;
+END;
+//
+
+DELIMITER ;
+```
+</details>
   </details>
 
    <details>
