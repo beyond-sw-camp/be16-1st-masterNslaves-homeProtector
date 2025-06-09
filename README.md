@@ -466,15 +466,19 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>회원 관련</summary>
       <details>
      <summary> 1. 회원 등록</summary>
+        <img src="images/dml_images/회원등록.png" width="900">
       </details>
           <details>
      <summary> 2. 회원 수정</summary>
+        <img src="images/dml_images/회원수정.png" width="900">
       </details>
           <details>
      <summary> 3. 회원 탈퇴</summary>
+        <img src="images/dml_images/회원탈퇴.png" width="900">
       </details>
           <details>
      <summary> 4. 회원 조회</summary>
+        <img src="images/dml_images/회원탈퇴.png" width="900">
       </details>
   </details>
 
@@ -531,6 +535,7 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
       </details>
           <details>
      <summary> 4. 피해 게시글 조회</summary>
+          <img src="images/dml_images/주소검색.png" width="900">
       </details>
       <details>
      <summary> 5. 피해 게시글 등록 승인</summary>
@@ -540,6 +545,14 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
       </details>
           <details>
      <summary> 7. 피해 게시글 삭제 승인</summary>
+      </details>
+             <details>
+     <summary> 8. 부동산 정보등록</summary>
+            <img src="images/dml_images/부동산정보등록.png" width="900">
+      </details>
+             <details>
+     <summary> 9. 사기 유형 연결</summary>
+            <img src="images/dml_images/사기유형연결.png" width="900">
       </details>
   </details>
   
@@ -607,41 +620,86 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>댓글 관련</summary>
       <details>
      <summary> 1. 댓글 등록</summary>
-        <img src="images/dml_images/질문 게시글 댓글 작성.png" width="900">
+        질문게시글 댓글 등록 / 피해게시글 댓글 등록
+        <div>
+        <img src="images/dml_images/질문 게시글 댓글 작성.png" width="450">
+        <img src="images/dml_images/피해게시글 댓글달기.png" width="450">
+        </div>
       </details>
           <details>
      <summary> 2. 댓글 수정</summary>
-       <img src="images/dml_images/댓글 수정.png" width="900">
+        질문게시글 댓글 수정 / 피해게시글 댓글 수정
+        <div>
+       <img src="images/dml_images/댓글 수정.png" width="450">
+      <img src="images/dml_images/피해게시글 댓글수정.png" width="450">
+        </div>
       </details>
           <details>
      <summary> 3. 댓글 삭제</summary>
-        <img src="images/dml_images/질문 게시글 댓글 삭제.png" width="900">
+        질문게시글 댓글 삭제 / 피해게시글 댓글 삭제
+        <div>
+        <img src="images/dml_images/질문 게시글 댓글 삭제.png" width="450">
+        <img src="images/dml_images/피해게시글 댓글삭제.png" width="450">
+        </div>
       </details>
           <details>
      <summary> 4. 댓글 조회</summary>
-         <img src="images/dml_images/댓글 조회.png" width="900">
+          질문게시글 댓글 조회 / 피해게시글 댓글 조회
+         <div>
+         <img src="images/dml_images/댓글 조회.png" width="450">
+         <img src="images/dml_images/피해게시글 댓글조회.png" width="450">
+         </div>
       </details>
     <details>
         <summary> 5. 대댓글 등록</summary>
-       <img src="images/dml_images/질문 게시글 대댓글 추가.png" width="900">
+      질문게시글 대댓글 등록 / 피해게시글 대댓글 등록
+      <div>
+       <img src="images/dml_images/질문 게시글 대댓글 추가.png" width="450">
+      <img src="images/dml_images/피해게시글 대댓글달기.png" width="450">
+      </div>
       </details>
           <details>
      <summary> 6. 대댓글 수정</summary>
-        <img src="images/dml_images/대댓글 수정.png" width="900">
+        <div>
+        질문게시글 대댓글 수정 / 피해게시글 대댓글 수정
+        <img src="images/dml_images/대댓글 수정.png" width="450">
+        <img src="images/dml_images/피해게시글 대댓글수정.png" width="450">
+        </div>
       </details>
           <details>
      <summary> 7. 대댓글 삭제</summary>
-        <img src="images/dml_images/질문 게시글 댓글 및 대댓글 삭제.png" width="900">
+        <div>
+        질문게시글 대댓글 삭제 / 피해게시글 대댓글 삭제
+        <img src="images/dml_images/질문 게시글 댓글 및 대댓글 삭제.png" width="450">
+        <img src="images/dml_images/피해게시글 대댓글삭제.png" width="450">
+        </div>
       </details>
           <details>
      <summary> 8. 대댓글 조회</summary>
-        <img src="images/dml_images/대댓글 조회.png" width="900">
+        질문게시글 대댓글 조회 / 피해게시글 대댓글 조회
+        <div>
+        <img src="images/dml_images/대댓글 조회.png" width="450">
+        <img src="images/dml_images/피해게시글 대댓글좋.png" width="450">
+        </div>
       </details>
 </details>
    <details>
      <summary>알림 관련</summary>
       <details>
-     <summary> 1. 알림 조회</summary>
+     <summary> 1. 질문게시글 댓글 알림 발송 및 조회</summary>
+      <img src="images/dml_images/질문 게시글 댓글 등록 알림.png" width="900">
+      </details>
+      <details>
+     <summary> 2. 피해게시글 댓글 알림 발송 및 조회</summary>
+      <img src="images/dml_images/피해게시글 댓글알림.png" width="900">
+      </details>
+      <details>
+     <summary> 3. 질문게시글 대댓글 알림 발송 및 조회</summary>
+      <img src="images/dml_images/질문 게시글 대댓글 등록 알림 발송.png" width="900">
+      </details>
+      <details>
+     <summary> 4. 피해게시글 대댓글 알림 발송 및 조회</summary>
+      <img src="images/dml_images/피해게시글 대댓글알림.png" width="900">
       </details>
   </details>
 
@@ -691,11 +749,19 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
      <summary>좋아요 관련</summary>
       <details>
      <summary> 1. 좋아요 등록</summary>
-      <img src="images/dml_images/질문 게시글 좋아요 추가.png" width="900">
+      질문게시글 좋아요 등록 / 피해게시글 좋아요 등록
+      <div>
+      <img src="images/dml_images/질문 게시글 좋아요 추가.png" width="450">
+        <img src="images/dml_images/피해게시글 좋아요 등록.png" width="450">
+      </div>
       </details>
           <details>
      <summary> 2. 좋아요 취소</summary>
-      <img src="images/dml_images/질문 게시글 좋아요 취소.png" width="900">
+      질문게시글 좋아요 취소 / 피해게시글 좋아요 취소
+      <div>
+      <img src="images/dml_images/질문 게시글 좋아요 취소.png" width="450">
+      <img src="images/dml_images/피해게시글 좋아요 취소.png" width="450">
+      </div>
       </details>
   </details>
 </details>  
@@ -713,4 +779,3 @@ FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)
   -
 - 이우영
   - 
-
