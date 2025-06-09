@@ -6,7 +6,8 @@ inquiry_title VARCHAR(255) NOT NULL,
 inquiry_contents TEXT NOT NULL,		
 inquiry_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,		
 inquiry_updated_at DATETIME NULL,		
-inquiry_deleted_at DATETIME NULL,		
+inquiry_deleted_at DATETIME NULL,
+inquiry_like_count INT UNSIGNED NOT NULL DEFAULT 0,
 PRIMARY KEY (inquiry_id),		
 FOREIGN KEY (user_id) REFERENCES user (user_id)		
 );		
