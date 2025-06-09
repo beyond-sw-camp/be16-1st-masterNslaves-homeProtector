@@ -6,7 +6,11 @@ values('관리자1', 'kkd0250@gmail.com', '1234pw', '124121', NOW())
 update admin set admin_name ='하위 관리자' where admin_email ='kkd0250@gmail.com'
 
 -- 관리자 탈퇴하기
-update set admin admin_end_at = NOW() where admin_email = 'kkd0250@gmail.com'
+-- update set admin admin_end_at = NOW() where admin_email = 'kkd0250@gmail.com'
+UPDATE admin
+SET admin_end_at = NOW()
+WHERE admin_email = 'kkd0250@gmail.com';
+
 
 -- 관리자 조회하기
 select * from admin where admin_email = ?;
