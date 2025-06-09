@@ -11,7 +11,7 @@ CREATE PROCEDURE insert_post_with_property_and_fraud_types (
     IN p_accident_end_date DATETIME,
     IN p_title VARCHAR(255),
     IN p_content TEXT,
-    IN p_fraud_ids JSON  -- 예: '[1,2,4]'
+    IN p_fraud_ids JSON
 )
 BEGIN
     DECLARE v_properties_id BIGINT;
@@ -29,11 +29,10 @@ BEGIN
 
     START TRANSACTION;
 
-    -- 1. 부동산 정보 삽입 (중복 무시)
+    -- 1. 부동산 정보 삽입
     INSERT IGNORE INTO properties (
         properties_address, properties_name, properties_latitude, properties_longitude
-    )
-    VALUES (
+    ) VALUES (
         p_address, p_name, p_latitude, p_longitude
     );
 
@@ -67,8 +66,7 @@ BEGIN
     END WHILE;
 
     COMMIT;
-END;
-//
+END //
 
 DELIMITER ;
 -- 피해게시글 수정
@@ -163,3 +161,67 @@ pr.properties_address LIKE CONCAT('%', input_address, '%');
 END //
 
 DELIMITER ;
+
+-- 승인된 게시글
+SELECT
+    p.post_id,
+    p.post_title,
+    p.post_content,
+    p.post_created_at,
+    u.user_name,
+    pr.properties_address,
+    pr.properties_name,
+    f.fraud_type
+FROM post p
+JOIN user u ON p.user_id = u.user_id
+JOIN properties pr ON p.properties_id = pr.properties_id
+LEFT JOIN fraud_type_connect fc ON p.post_id = fc.post_id
+LEFT JOIN fraud_type f ON fc.fraud_id = f.fraud_id
+WHERE p.post_status = '승인'
+  AND p.post_deleted_at IS NULL
+ORDER BY p.post_created_at DESC;
+
+-- 승인된 게시글 주소조회
+DELIMITER //
+
+CREATE PROCEDURE search_posts_by_address(IN input_address VARCHAR(255))
+BEGIN
+    SELECT
+        p.post_id,
+        p.post_title,
+        p.post_content,
+        p.post_created_at,
+        pr.properties_id,
+        pr.properties_address,
+        pr.properties_name
+    FROM post p
+    INNER JOIN properties pr ON p.properties_id = pr.properties_id
+    WHERE pr.properties_address LIKE CONCAT('%', input_address, '%')
+      AND p.post_status = '승인'; 
+END //
+
+DELIMITER ;
+
+-- 댓글에 달린 대댓글 조회
+SELECT 
+    r.reply_id,
+    r.reply_content,
+    r.reply_created_at,
+    u.user_name
+FROM reply r
+JOIN user u ON r.user_id = u.user_id
+WHERE r.reply_parent_id = 1
+  AND r.reply_deleted_at IS NULL
+ORDER BY r.reply_created_at;
+
+-- 활성화된 사용자 조회
+SELECT
+    user_id,
+    user_name,
+    user_email,
+    user_phone_number,
+    user_age,
+    user_gender,
+    user_created_at
+FROM user
+WHERE user_deleted_at IS NULL;
