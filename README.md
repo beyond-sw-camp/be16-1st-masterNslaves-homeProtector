@@ -154,6 +154,7 @@
   <summary>1. 회원 테이블 생성하기</summary>
 
   ```sql
+-- 유저 테이블
 CREATE TABLE user (	
 user_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 user_name VARCHAR(255) NOT NULL,	
@@ -173,22 +174,25 @@ PRIMARY KEY (user_id)
   <summary>2. 관리자 테이블 생성하기</summary>
 
   ```sql
+-- 관리자 테이블
 CREATE TABLE admin (			
 admin_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,			
 admin_name VARCHAR(255) NOT NULL,			
-admin_email VARCHAR(255) NOT NULL,			
+admin_email VARCHAR(255) NOT NULL UNIQUE,			
 admin_password VARCHAR(255) NOT NULL,			
 admin_com_num VARCHAR(255) NOT NULL,			
 admin_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,			
 admin_end_at DATETIME NULL,			
 PRIMARY KEY (admin_id)			
-);		
+);			
+
   ```
   </details>
     <details>
   <summary>3. 부동산 정보 테이블 생성하기</summary>
 
   ```sql
+-- 부동산 정보
 CREATE TABLE properties (		
 properties_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,		
 properties_address VARCHAR(255) NOT NULL,		
@@ -203,13 +207,14 @@ PRIMARY KEY (properties_id)
   <summary>4. 전문가 테이블 생성하기</summary>
 
   ```sql
+-- 전문가 테이블
 CREATE TABLE expert (	
 expert_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 expert_name VARCHAR(255) NOT NULL,	
 contact VARCHAR(255) NOT NULL,	
 password VARCHAR(255) NOT NULL,	
 qualify_type VARCHAR(255) NOT NULL,	
-qualify_num VARCHAR(255) NOT NULL,	
+qualify_num VARCHAR(255) NOT NULL UNIQUE,	
 created_at DATETIME NOT NULL,	
 updated_at DATETIME NULL,	
 deleted_at DATETIME NULL,	
@@ -221,17 +226,19 @@ PRIMARY KEY (expert_id)
   <summary>5. 사기타입 테이블 생성하기</summary>
 
   ```sql
+-- 사기유형 테이블
 CREATE TABLE fraud_type (			
 fraud_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,			
 fraud_type VARCHAR(255) NOT NULL,			
 PRIMARY KEY (fraud_id)			
-);		
+);			
   ```
   </details>
     <details>
   <summary>6. 피해 테이블 생성하기</summary>
 
   ```sql
+-- 피해 게시글
 CREATE TABLE post (		
 post_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,		
 user_id BIGINT UNSIGNED NOT NULL,		
@@ -250,13 +257,14 @@ approve_admin BIGINT UNSIGNED NULL,
 PRIMARY KEY (post_id),		
 FOREIGN KEY (user_id) REFERENCES user (user_id),		
 FOREIGN KEY (properties_id) REFERENCES properties (properties_id)		
-);	
+);		
   ```
   </details>
     <details>
   <summary>7. 질문 테이블 생성하기</summary>
 
   ```sql
+-- 질문 게시글
 CREATE TABLE inquiry (		
 inquiry_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,		
 user_id BIGINT UNSIGNED NOT NULL,		
@@ -264,16 +272,18 @@ inquiry_title VARCHAR(255) NOT NULL,
 inquiry_contents TEXT NOT NULL,		
 inquiry_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,		
 inquiry_updated_at DATETIME NULL,		
-inquiry_deleted_at DATETIME NULL,		
+inquiry_deleted_at DATETIME NULL,
+inquiry_like_count INT UNSIGNED NOT NULL DEFAULT 0,
 PRIMARY KEY (inquiry_id),		
 FOREIGN KEY (user_id) REFERENCES user (user_id)		
-);		
+);			
   ```
   </details>
     <details>
   <summary>8. 공지사항 테이블 생성하기</summary>
 
   ```sql
+-- 공지사항 테이블
 CREATE TABLE notice (	
 announce_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 admin_id BIGINT UNSIGNED NOT NULL,	
@@ -292,6 +302,7 @@ FOREIGN KEY (admin_id) REFERENCES admin (admin_id)
   <summary>9. 상담 테이블 생성하기</summary>
 
   ```sql
+-- 상담 게시글 테이블
 CREATE TABLE counsel (		
 counsel_id BIGINT NOT NULL AUTO_INCREMENT,		
 user_id BIGINT UNSIGNED NOT NULL,		
@@ -313,6 +324,7 @@ FOREIGN KEY (expert_id) REFERENCES expert (expert_id)
   <summary>10. 댓글 테이블 생성하기</summary>
 
   ```sql
+-- 댓글 테이블
 CREATE TABLE reply (		
 reply_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,		
 post_id BIGINT UNSIGNED,		
@@ -327,28 +339,30 @@ PRIMARY KEY (reply_id),
 FOREIGN KEY (post_id) REFERENCES post (post_id),		
 FOREIGN KEY (user_id) REFERENCES user (user_id),		
 FOREIGN KEY (inquiry_id) REFERENCES inquiry (inquiry_id)		
-);		
+);			
   ```
   </details>
       <details>
   <summary>11. 증빙자료 테이블 생성하기</summary>
 
   ```sql
+-- 증명자료 테이블
 CREATE TABLE proof (	
 proof_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
-post_id BIGINT UNSIGNED NOT NULL,	
-expert_id BIGINT UNSIGNED NOT NULL,	
+post_id BIGINT UNSIGNED NULL,	
+expert_id BIGINT UNSIGNED NULL,	
 proof_file_path VARCHAR(255) NOT NULL,	
 PRIMARY KEY (proof_id),	
 FOREIGN KEY (post_id) REFERENCES post (post_id),	
 FOREIGN KEY (expert_id) REFERENCES expert (expert_id)	
-);	
+);
   ```
   </details>
       <details>
   <summary> 12. 신고 테이블 생성하기</summary>
 
   ```sql
+-- 신고 테이블
 CREATE TABLE report (		
 report_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,		
 user_id BIGINT UNSIGNED NOT NULL,		
@@ -357,8 +371,8 @@ admin_id BIGINT UNSIGNED NULL,
 reply_id BIGINT UNSIGNED,		
 report_resason TEXT NOT NULL,		
 report_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,		
-report_status ENUM('대기중', '완료') NOT NULL DEFAULT '대기중',		
-report_action VARCHAR(255) NOT NULL,		
+report_status ENUM('대기중', '완료', '반려') NOT NULL DEFAULT '대기중',		
+report_action VARCHAR(255) NULL,		
 report_processed_at DATETIME NULL,		
 PRIMARY KEY (report_id),		
 FOREIGN KEY (user_id) REFERENCES user (user_id),		
@@ -372,6 +386,7 @@ FOREIGN KEY (reply_id) REFERENCES reply (reply_id)
   <summary>13. 알림 테이블 생성하기</summary>
 
   ```sql
+-- 알림 테이블
 CREATE TABLE alerts (	
 notice_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 user_id BIGINT UNSIGNED NOT NULL,	
@@ -392,6 +407,7 @@ FOREIGN KEY (inquiry_id) REFERENCES reply (inquiry_id)
   <summary>14. 로그 테이블 생성하기</summary>
 
   ```sql
+-- 로그 테이블
 CREATE TABLE log_list (	
 log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 user_id BIGINT UNSIGNED NOT NULL,	
@@ -401,13 +417,14 @@ performed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 details VARCHAR(255) NULL,	
 PRIMARY KEY (log_id),	
 FOREIGN KEY (user_id) REFERENCES user (user_id)	
-);	
+);
   ```
   </details>
       <details>
   <summary>15. 피해 게시글 좋아요 테이블 생성하기</summary>
 
   ```sql
+-- 피해 게시글 좋아요
 CREATE TABLE post_like (			
 like_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,			
 post_id BIGINT UNSIGNED NOT NULL,			
@@ -424,6 +441,7 @@ FOREIGN KEY (user_id) REFERENCES user (user_id)
   <summary>16. 질문 게시글 좋아요 테이블 생성하기</summary>
 
   ```sql
+-- 질문 게시글 좋아요
 CREATE TABLE inquiry_like (	
 like_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,	
 inquiry_id BIGINT UNSIGNED NOT NULL,	
@@ -433,23 +451,8 @@ PRIMARY KEY (like_id),
 UNIQUE (inquiry_id, user_id),	
 FOREIGN KEY (inquiry_id) REFERENCES inquiry (inquiry_id),	
 FOREIGN KEY (user_id) REFERENCES user (user_id)	
-);	
-  ```
-  </details>
-
-  <details>
-  <summary>16. 질문 게시글 좋아요 테이블 생성하기</summary>
-
-  ```sql
-CREATE TABLE fraud_type_connect (			
-id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,			
-post_id BIGINT UNSIGNED NOT NULL,			
-fraud_id BIGINT UNSIGNED NOT NULL,			
-PRIMARY KEY (id),			
-FOREIGN KEY (post_id) REFERENCES post (post_id),			
-FOREIGN KEY (fraud_id) REFERENCES fraud_type (fraud_id)			
 );			
-
+	
   ```
   </details>
   
@@ -800,13 +803,15 @@ DELIMITER ;
  </details>
           <details>
      <summary> 2. 피해 게시글 수정 요청</summary>
-        <img src="images/dml_images/피해게시글수정.png" width="900">
+        <img src="images/dml_images/1_게시글 수정 요청.png" width="900">
 
 ```sql
--- 피해게시글 수정
+-- 피해게시글 수정 요청
+-- 게시글을 수정 요청 했을 때, status '수정 요청'으로 바뀌는 프로시저
+
 DELIMITER //
 
-CREATE PROCEDURE update_post (
+CREATE PROCEDURE request_post_update (
     IN p_post_id BIGINT,
     IN p_user_id BIGINT,
     IN p_title VARCHAR(255),
@@ -818,19 +823,19 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = '피해 게시글 수정 중 오류 발생';
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '수정 요청 중 오류 발생';
     END;
 
     START TRANSACTION;
 
-    -- 게시글 수정
     UPDATE post
     SET
         post_title = p_title,
         post_content = p_content,
         post_accident_number = p_accident_number,
         post_accident_end_date = p_accident_end_date,
+        post_status = '수정 요청',
         post_updated_at = NOW()
     WHERE post_id = p_post_id AND user_id = p_user_id;
 
@@ -962,12 +967,61 @@ DELIMITER ;
   </details>
           <details>
      <summary> 6. 피해 게시글 수정 승인</summary>
-      </details>
-          <details>
-     <summary> 7. 피해 게시글 삭제 승인</summary>
-      </details>
+            <img src="images/dml_images/2_게시글 수정 요청 승인.png" width="900">
+
+```sql
+-- admin이 post를 승인, 반려 하는 프로시저
+ -- 승인, 반려 할 경우 log_list 트리거가 자동 실행되어 log_list에 업로드
+
+DELIMITER //
+
+CREATE PROCEDURE admin_update_post_status (
+    IN p_post_id BIGINT,
+    IN p_admin_id BIGINT,
+    IN p_post_status ENUM('승인', '반려'),
+    IN p_rejected_reason VARCHAR(255)
+)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '게시글 상태 변경 중 오류 발생';
+    END;
+
+    START TRANSACTION;
+
+    -- 상태가 승인일 경우 반려 사유는 NULL로 처리
+    IF p_post_status = '승인' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = NULL,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSEIF p_post_status = '반려' THEN
+        UPDATE post
+        SET 
+            post_status = p_post_status,
+            post_rejected_reason = p_rejected_reason,
+            approve_admin = p_admin_id,
+            post_updated_at = NOW()
+        WHERE post_id = p_post_id;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'post_status는 승인 또는 반려만 허용됩니다';
+    END IF;
+
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+</details>
              <details>
-     <summary> 8. 부동산 정보등록</summary>
+     <summary> 7. 부동산 정보등록</summary>
             <img src="images/dml_images/부동산정보등록.png" width="900">
 
 ```sql
@@ -1045,7 +1099,7 @@ DELIMITER ;
 ```
 </details>
              <details>
-     <summary> 9. 사기 유형 연결</summary>
+     <summary> 8. 사기 유형 연결</summary>
             <img src="images/dml_images/사기유형연결.png" width="900">
       </details>
   </details>
